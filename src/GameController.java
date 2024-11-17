@@ -1,7 +1,12 @@
 
 import java.util.Scanner;
 import java.util.ArrayList;
-
+import java.util.HashSet;
+import java.util.List;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Collections;
 public class GameController {
     private ArrayList<State> gameBoards;
     private int currentBoardIndex;
@@ -26,18 +31,18 @@ public class GameController {
     public void setupAllBoards() {
         gameBoards.get(0).addBlock(2, 2);
         gameBoards.get(0).addMovableCell(1, 1, "Red");
-        gameBoards.get(0).addMovableCell(4, 4, "Blue");
+        // gameBoards.get(0).addMovableCell(4, 4, "Blue");
         gameBoards.get(0).addTargetCell(0, 0, "Red");
-        gameBoards.get(0).addTargetCell(6, 6, "Blue");
+        // gameBoards.get(0).addTargetCell(6, 6, "Blue");
 
-        gameBoards.get(1).addBlock(2, 2);
-        gameBoards.get(1).addBlock(6, 2);
-        gameBoards.get(1).addMovableCell(1, 1, "Red");
-        gameBoards.get(1).addMovableCell(3, 3, "Blue");
-        gameBoards.get(1).addMovableCell(5, 5, "Yellow");
-        gameBoards.get(1).addTargetCell(0, 0, "Red");
-        gameBoards.get(1).addTargetCell(2, 4, "Blue");
-        gameBoards.get(1).addTargetCell(6, 6, "Yellow");
+//        gameBoards.get(1).addBlock(2, 2);
+//        gameBoards.get(1).addBlock(6, 2);
+//        gameBoards.get(1).addMovableCell(1, 1, "Red");
+//        gameBoards.get(1).addMovableCell(3, 3, "Blue");
+//        gameBoards.get(1).addMovableCell(5, 5, "Yellow");
+//        gameBoards.get(1).addTargetCell(0, 0, "Red");
+//        gameBoards.get(1).addTargetCell(2, 4, "Blue");
+//        gameBoards.get(1).addTargetCell(6, 6, "Yellow");
 
     }
 
@@ -82,6 +87,49 @@ public class GameController {
     }
 
 
+    public boolean dfs(State state, int depth, int maxDepth, HashSet<State> visitedStates, ArrayList<State> path) {
+        if (state.checkIfReachedTarget()) {
+
+            System.out.println("Solution found at depth " + depth);
+            System.out.println("Solution path:");
+            for (int i = 0; i < path.size(); i++) {
+                path.get(i).printBoard();
+
+            }
+
+            System.out.println("Number of visited states: " + visitedStates.size());
+            return true;
+        }
+
+        if (depth >= maxDepth) {
+            return false;
+        }
+
+        if (visitedStates.contains(state)) {
+            return false;
+        }
+
+        visitedStates.add(state);
+        path.add(state);
+
+        ArrayList<State> possibleMoves = state.getAllPossibleMoves();
+
+        for (int i = 0; i < possibleMoves.size(); i++) {
+            State nextState = possibleMoves.get(i);
+            if (dfs(nextState, depth + 1, maxDepth, visitedStates, path)) {
+                return true;
+            }
+        }
+
+        path.remove(path.size() - 1);
+
+        return false;
+    }
+
+
+
+
+
 
 
 
@@ -92,33 +140,33 @@ public class GameController {
             printCurrentBoard();
             printAllPossibleMoves();
 
-            if (gameBoards.get(currentBoardIndex).checkIfReachedTarget()) {
-                System.out.println("Congratulations! All movable cells have reached their targets.");
-
-
-                currentBoardIndex++;
-                if (currentBoardIndex >= gameBoards.size()) {
-                    System.out.println("No more boards left. Game over!");
-                    break;
-                } else {
-                    System.out.println("Moving to the next board...");
-                }
-                continue;
-            }
-
-            System.out.println("Enter direction (W, S, A, D) or 'exit' to quit:");
+            System.out.println("Enter direction (W, S, A, D) or 'dfs' or 'bfs' or 'exit' to quit:");
             String input = scanner.nextLine();
-            if (input.equalsIgnoreCase("exit")) break;
-
-            String direction = input.toUpperCase();
-            getCurrentBoard().moveAllCells(direction);
-
-            gameBoards.get(currentBoardIndex).moveAllCells(direction);
 
 
+            if (input.equalsIgnoreCase("dfs")) {
+
+                int maxDepth = 3;
+                System.out.println("Starting DFS...");
+                HashSet<State> visitedStates = new HashSet<>();
+                ArrayList<State> path = new ArrayList<>();
+                if (!dfs(getCurrentBoard(), 0, maxDepth, visitedStates, path)) {
+                    System.out.println("No solution found within depth " + maxDepth);
+                }
+
+            } else if (input.equalsIgnoreCase("exit")) {
+                break;
+            } else {
+                printAllPossibleMoves();
+
+                getCurrentBoard().moveAllCells(input.toUpperCase());
+                gameBoards.get(currentBoardIndex).moveAllCells(input.toUpperCase());
+
+            }
         }
         scanner.close();
     }
+
 
 }
 

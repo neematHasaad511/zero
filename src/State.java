@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class State {
     public enum CellType {
@@ -16,7 +17,9 @@ public class State {
             this.col = col;
             this.color = color;
         }
+
     }
+
     public ArrayList<ArrayList<Cell>> getBoardState() {
         return board;
     }
