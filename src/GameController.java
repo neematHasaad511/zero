@@ -87,50 +87,51 @@ public class GameController {
     }
 
 
-    public boolean dfs(State state, int depth, int maxDepth, HashSet<State> visitedStates, ArrayList<State> path) {
-        if (state.checkIfReachedTarget()) {
 
-            System.out.println("Solution found at depth " + depth);
-            System.out.println("Solution path:");
-            for (int i = 0; i < path.size(); i++) {
-                path.get(i).printBoard();
 
-            }
 
-            System.out.println("Number of visited states: " + visitedStates.size());
-            return true;
-        }
 
-        if (depth >= maxDepth) {
-            return false;
-        }
 
-        if (visitedStates.contains(state)) {
-            return false;
-        }
+    public boolean bfs(State initialState) {
 
-        visitedStates.add(state);
-        path.add(state);
+        Queue<State> queue = new LinkedList<>();
+        HashSet<State> visitedStates = new HashSet<>();
+        HashMap<State, State> parentMap = new HashMap<>();
+        List<State> path = new ArrayList<>();
+        queue.add(initialState);
+        visitedStates.add(initialState);
 
-        ArrayList<State> possibleMoves = state.getAllPossibleMoves();
+        while (!queue.isEmpty()) {
+            State currentState = queue.poll();
 
-        for (int i = 0; i < possibleMoves.size(); i++) {
-            State nextState = possibleMoves.get(i);
-            if (dfs(nextState, depth + 1, maxDepth, visitedStates, path)) {
+            if (currentState.checkIfReachedTarget()) {
+                System.out.println("Goal reached!");
+
+                Collections.reverse(path);
+                System.out.println("Path to the goal:");
+                for (int i = 0; i < path.size(); i++) {
+                    path.get(i).printBoard();
+                }
+                System.out.println("Number of visited states: " + visitedStates.size());
                 return true;
             }
+
+            ArrayList<State> possibleMoves = currentState.getAllPossibleMoves();
+
+            for (int i = 0; i < possibleMoves.size(); i++) {
+                State nextState = possibleMoves.get(i);
+                if (!visitedStates.contains(nextState)) {
+                    visitedStates.add(nextState);
+                    queue.add(nextState);
+                    parentMap.put(nextState, currentState);
+                }
+            }
         }
 
-        path.remove(path.size() - 1);
 
+        System.out.println("No solution found using BFS.");
         return false;
     }
-
-
-
-
-
-
 
 
     public void startGame() {
@@ -144,16 +145,12 @@ public class GameController {
             String input = scanner.nextLine();
 
 
-            if (input.equalsIgnoreCase("dfs")) {
 
-                int maxDepth = 3;
-                System.out.println("Starting DFS...");
-                HashSet<State> visitedStates = new HashSet<>();
-                ArrayList<State> path = new ArrayList<>();
-                if (!dfs(getCurrentBoard(), 0, maxDepth, visitedStates, path)) {
-                    System.out.println("No solution found within depth " + maxDepth);
+           if (input.equalsIgnoreCase("bfs")) {
+                System.out.println("Starting BFS...");
+                if (!bfs(getCurrentBoard())) {
+                    System.out.println("No solution found using BFS.");
                 }
-
             } else if (input.equalsIgnoreCase("exit")) {
                 break;
             } else {
