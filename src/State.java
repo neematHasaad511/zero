@@ -38,6 +38,8 @@ public class State {
         }
     }
 
+
+
     public ArrayList<State> getAllPossibleMoves() {
 
         String[] directions = {"W", "S", "A", "D"};
@@ -52,9 +54,12 @@ public class State {
                 }
             }
         }
+        for (int i = 0; i < movableCells.size(); i++) {
+            Cell cell = movableCells.get(i);
 
-        for (Cell cell : movableCells) {
-            for (String direction : directions) {
+            for (int j = 0; j < directions.length; j++) {
+                String direction = directions[j];
+
                 State newState = new State(n);
 
                 for (int row = 0; row < n; row++) {
@@ -62,7 +67,6 @@ public class State {
                         newState.board.get(row).set(col, new Cell(board.get(row).get(col).type, row, col, board.get(row).get(col).color));
                     }
                 }
-
 
                 newState.moveCell(cell.row, cell.col, direction);
 
@@ -76,6 +80,7 @@ public class State {
     }
 
     public void printBoard() {
+
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 Cell cell = board.get(i).get(j);
@@ -121,11 +126,13 @@ public class State {
             }
         }
 
-        for (Cell cell : cellsToMove) {
+        for (int i = 0; i < cellsToMove.size(); i++) {
+            Cell cell = cellsToMove.get(i);
             int row = cell.row;
             int col = cell.col;
             moveCell(row, col, direction);
         }
+
     }
 
     public boolean moveCell(int row, int col, String direction) {
@@ -195,8 +202,37 @@ public class State {
         return true;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        State state = (State) obj;
 
 
+        return Objects.equals(board, state.board);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(board);
+    }
+    private State parent;  // لتتبع الحالة السابقة
+
+    public State getParent() {
+        return parent;
+    }
+
+    public void setParent(State parent) {
+        this.parent = parent;
+    }
 
 }
 
