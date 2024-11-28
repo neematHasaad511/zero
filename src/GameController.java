@@ -65,7 +65,7 @@ public class GameController {
         }
     }
 
-    // حل التعارض هنا
+    // Recursion Dfs
     public boolean dfs(State state, int depth, int maxDepth, HashSet<State> visitedStates, ArrayList<State> path) {
         if (state.checkIfReachedTarget()) {
             System.out.println("Solution found at depth " + depth);
@@ -224,14 +224,68 @@ public class GameController {
             return cost;
         }
     }
+    public boolean dfs_stack(int maxDepth) {
+        Stack<State> stack = new Stack<>();
+        HashMap<State, Integer> depthMap = new HashMap<>(); // لتتبع العمق
+        HashSet<State> visitedStates = new HashSet<>();
+        HashMap<State, State> parentMap = new HashMap<>(); // لتتبع المسار
+        State initialState = getCurrentBoard();
 
+        stack.push(initialState);
+        depthMap.put(initialState, 0);
+        visitedStates.add(initialState);
+
+
+
+        while (!stack.isEmpty()) {
+            State currentState = stack.pop();
+            int currentDepth = depthMap.get(currentState);
+            if (currentState.checkIfReachedTarget()) {
+                System.out.println("Goal reached at depth " + currentDepth + "!");
+                List<State> path = new ArrayList<>();
+                State traceBackState = currentState;
+
+                while (traceBackState != null) {
+                    path.add(traceBackState);
+                    traceBackState = parentMap.get(traceBackState);
+                }
+                Collections.reverse(path);
+
+                System.out.println("Path to the goal:");
+                for (State state : path) {
+                    state.printBoard();
+                }
+                System.out.println("Number of visited states: " + visitedStates.size());
+                return true;
+            }
+
+            if (currentDepth >= maxDepth) {
+                continue;
+            }
+
+            ArrayList<State> possibleMoves = currentState.getAllPossibleMoves();
+            for (int i = 0; i < possibleMoves.size(); i++) {
+                State nextState = possibleMoves.get(i);
+                if (!visitedStates.contains(nextState)) {
+                    visitedStates.add(nextState);
+                    stack.push(nextState);
+                    parentMap.put(nextState, currentState);
+                    depthMap.put(nextState, currentDepth + 1);
+                }
+            }
+        }
+
+
+        System.out.println("No solution found.");
+        return false;
+    }
     public void startGame() {
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
             printCurrentBoard();
 
-            System.out.println("Enter direction (W, S, A, D) or 'dfs' or 'bfs' or 'ucs' or 'exit' to quit:");
+            System.out.println("Enter direction (W, S, A, D) or 'dfs' or 'bfs' or 'ucs' or 'dfss' or  'exit' to quit:");
             String input = scanner.nextLine();
 
             if (input.equalsIgnoreCase("dfs")) {
@@ -252,7 +306,14 @@ public class GameController {
                 if (!ucs()) {
                     System.out.println("No solution found using UCS.");
                 }
-            } else if (input.equalsIgnoreCase("exit")) {
+            }
+            else if (input.equalsIgnoreCase("dfss")) {
+                int maxDepth = 3;
+                System.out.println("Starting DFS...");
+                if (!dfs_stack(maxDepth)) {
+                    System.out.println("No solution found using DFS.");
+                }
+            }else if (input.equalsIgnoreCase("exit")) {
                 break;
             }
 
